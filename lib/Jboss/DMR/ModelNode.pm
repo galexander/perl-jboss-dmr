@@ -1,5 +1,8 @@
 package Jboss::DMR::ModelNode;
 
+#BEGIN { $ENV{PERL_JSON_BACKEND} = 2 } # with JSON::XS
+#use JSON -support_by_pp;
+
 use strict;
 use warnings;
 
@@ -211,5 +214,15 @@ sub TO_JSON {
     } else {
         return $value;
     }
+}
+
+sub toJSON {
+    use JSON -support_by_pp;
+    my $self = shift;
+    my $json = JSON->new();
+    $json->allow_blessed(1);
+    $json->convert_blessed(1);
+    $json->allow_bignum(1);
+    return $json->encode($self);
 }
 1;
