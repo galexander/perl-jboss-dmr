@@ -10,7 +10,12 @@ use Storable qw(dclone);
 
 use Carp qw(croak);
 use JSON qw(to_json);
+use Exporter qw(import);
 
+use constant ModelNode => 'Jboss::DMR::ModelNode';
+
+our @EXPORT_OK = (qw(ModelNode));
+our %EXPORT_TAGS = ( namespace => [qw(ModelNode)] );
 
 use Jboss::DMR::ModelType qw(:types :typenames);
 
@@ -149,6 +154,8 @@ sub add {
         if ($value->type == UNDEFINED) {
             $value = Jboss::DMR::ModelValue::List->new([]);
             $self->set($value);
+            return $value->addChild();
+        } else {
             return $value->addChild();
         }
     } else {
