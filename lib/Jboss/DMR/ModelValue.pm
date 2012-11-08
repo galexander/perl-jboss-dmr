@@ -185,4 +185,11 @@ sub ValueOf($$) {
     _ValueOf pop @_;
 }
 
+
+sub TO_JSON {
+    my $self = shift;
+    $self->getValue();
+
+}
+
 1;

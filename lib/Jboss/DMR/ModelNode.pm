@@ -198,4 +198,18 @@ sub isDefined {
     return $value->type != UNDEFINED;
 }
 
+sub TO_JSON {
+    my $self = shift;
+    my $value = $self->getValue();
+    if (blessed $value) {
+        if ($value->isa('Jboss::DMR::ModelValue')) {
+            return $value->getValue();
+        } else {
+            warn "Unknown type for json @{[ ref $value ]}\n";
+            return undef;
+        }
+    } else {
+        return $value;
+    }
+}
 1;

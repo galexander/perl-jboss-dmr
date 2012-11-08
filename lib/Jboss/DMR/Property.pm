@@ -57,4 +57,10 @@ sub clone {
     return bless dclone $_[0], ref $_[0] || $_[0];
 }
 
+sub TO_JSON {
+    my $self = shift;
+    return { $self->getName() => $self->getValue() };
+
+}
+
 1;
