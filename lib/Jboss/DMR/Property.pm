@@ -5,7 +5,9 @@ use Carp qw(croak);
 use Storable qw(dclone);
 use Scalar::Util qw(blessed);
 
-use Jboss::DMR::ModelNode;
+use Jboss::DMR::ModelNode  ();
+use Jboss::DMR::ModelValue ();
+use Jboss::DMR::ModelValue::Undefined ();
 
 sub new {
     my $class = shift;
@@ -18,12 +20,12 @@ sub new {
     my $copy  = shift if scalar @_;
 
     if (defined $value) {
-            if (blessed $value) {
-                croak 'Invalid arg $value is not a Jboss::DMR::ModelNode'
-                    unless $value->isa('Jboss::DMR::ModelNode');
-            } else {
-                $value = Jboss::DMR::ModelNode->new($value);
-            }
+        if (blessed $value) {
+            croak 'Invalid arg - $value is not a Jboss::DMR::ModelNode'
+                unless $value->isa('Jboss::DMR::ModelNode');
+        } else {
+            $value = Jboss::DMR::ModelNode->new($value);
+        }
 
     } else {
         $value = Jboss::DMR::ModelValue::Undefined();

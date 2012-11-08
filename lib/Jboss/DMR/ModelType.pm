@@ -17,6 +17,20 @@ use constant PROPERTY    => ord('p');
 use constant STRING      => ord('s');
 use constant UNDEFINED   => ord('u');
 
+use constant BIG_DECIMAL_NAME => 'BigDecimal';
+use constant BIG_INTEGER_NAME => 'BigInteger';
+use constant BOOLEAN_NAME     => 'Boolean';
+use constant BYTES_NAME       => 'Bytes';
+use constant DOUBLE_NAME      => 'Double';
+use constant EXPRESSION_NAME  => 'Expression';
+use constant INT_NAME         => 'Int';
+use constant LIST_NAME        => 'List';
+use constant LONG_NAME        => 'Long';
+use constant OBJECT_NAME      => 'Object';
+use constant PROPERTY_NAME    => 'Property';
+use constant STRING_NAME      => 'String';
+use constant UNDEFINED_NAME   => 'Undefined';
+
 our %ModelTypes = (
     'BIG_DECIMAL'   => BIG_DECIMAL,
     'BIG_INTEGER'   => BIG_INTEGER,
@@ -33,13 +47,39 @@ our %ModelTypes = (
     'UNDEFINED'     => UNDEFINED
 );
 
+our %TypeMap = (
+    BigDecimal  => BIG_DECIMAL,
+    BigInteger  => BIG_INTEGER,
+    Boolean     => BOOLEAN,
+    Bytes       => BYTES,
+    Double      => DOUBLE,
+    Expression  => EXPRESSION,
+    Int         => INT,
+    List        => LIST,
+    Long        => LONG,
+    Object      => OBJECT,
+    Property    => PROPERTY,
+    String      => STRING,
+    Undefined   => UNDEFINED,
+);
 
-our @EXPORT_OK   = (keys %ModelTypes, qw(true false));
-our %EXPORT_TAGS = (qw(types) => [ keys %ModelTypes ], qw(bool) => [ qw (true false) ]);
+our %TypeMapNames = reverse %TypeMap;
+
+our @TYPE_NAMES = sort keys %TypeMap;
+
+
+our  @EXPORT_OK   = (keys %ModelTypes, qw(@TYPE_NAMES), qw(true false));
+our  %EXPORT_TAGS = (qw(types)     => [ keys %ModelTypes ],
+                    qw(typenames) => [ qw(@TYPE_NAMES) ],
+                    qw(bool)     => [ qw (true false) ]);
 
 use constant true  => do { bless \(my $dummy = 1), "Jboss::DMR::ModelType::Boolean" };
 use constant false => do { bless \(my $dummy = 0), "Jboss::DMR::ModelType::Boolean" };
 
+sub ValueOf {
+    my $type = pop;
+    return $TypeMap{$type};
+}
 
 
 1;

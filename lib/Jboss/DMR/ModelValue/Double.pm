@@ -20,13 +20,43 @@ our %EXPORT_TAGS = (
 
 sub ValidDouble {
     my $value = new Math::BigFloat(pop @_);
-#print "$value, @{[MIN_DOUBLE_VAL]}\n";
-#printf "CMP = %d\n", $value->bcmp(MIN_DOUBLE_VAL);
-#print "\n";
     return 0 if $value->bacmp(MIN_DOUBLE_VAL) < 0;
     return 0 if $value->bacmp(MAX_DOUBLE_VAL) > 0;
     return 1;
 }
+
+sub asLong {
+    return sprintf "%l", $_[0]->getValue();
+}
+
+sub asInt {
+    return sprintf "%d", $_[0]->getValue();
+}
+
+sub asBoolean {
+    return $_[0]->getValue() != 0;
+}
+
+sub asDouble {
+    return $_[0]->getValue();
+}
+
+sub asBytes {
+    die "Todo";
+}
+
+sub asBigDecimal {
+    Math::BigFloat->new($_[0]->getValue());
+}
+
+sub asBigInteget {
+    Math::BigInt->new($_[0]->getValue());
+}
+
+sub asString {
+    return sprintf "%s", $_[0]->getValue();
+}
+
 
 
 1;

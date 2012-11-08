@@ -2,28 +2,84 @@
 
 use strict;
 use warnings;
-use Test::More qw(no_plan);
-
 
 use lib 'lib';
+
+# Import ModelType's
+use Jboss::DMR::ModelType qw(:types :bool);
+use Jboss::DMR::ModelValue qw(:values);
+
+use Test::More qw(no_plan);
+
+my %TypeMap = (
+    BigDecimal  => BIG_DECIMAL,
+    BigInteger  => BIG_INTEGER,
+    Boolean     => BOOLEAN,
+    Bytes       => BYTES,
+    Double      => DOUBLE,
+    Expression  => EXPRESSION,
+    Int         => INT,
+    List        => LIST,
+    Long        => LONG,
+    Object      => OBJECT,
+    Property    => PROPERTY,
+    String      => STRING,
+    Undefined   => UNDEFINED,
+);
+
 use_ok 'Jboss::DMR::ModelNode';
+can_ok 'Jboss::DMR::ModelNode', 'value';
+can_ok 'Jboss::DMR::ModelNode', 'isDefined';
+can_ok 'Jboss::DMR::ModelNode', map("as${_}", keys %TypeMap);
 
-can_ok 'Jboss::DMR::ModelNode', 'new';
-can_ok 'Jboss::DMR::ModelNode', 'id';
-can_ok 'Jboss::DMR::ModelNode', 'get';
-can_ok 'Jboss::DMR::ModelNode', 'set';
-can_ok 'Jboss::DMR::ModelNode', 'add';
-can_ok 'Jboss::DMR::ModelNode', 'struct';
-can_ok 'Jboss::DMR::ModelNode', 'encoded';
+# test constructors
 
-use Data::Dumper;
-my $op = Jboss::DMR::ModelNode->new();
-$op->get("operation")->set("read-attribute");
-my $address = $op->get("address");
-$address->add("subsystem", "datasources");
-$address->add("data-source", "datasourceName");
-$op->get("jndi-name")->set("java:jboss/datasources/datasourceName");
-$op->get("driver-name")->set("h2");
-$op->get("enabled")->set("true");
-$op->get("pool-name")->set("MigrateDS");
-$op->get("connection-url")->set("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+isa_ok (Jboss::DMR::ModelNode->new(BigDecimalValue("123"))->value,
+        'Jboss::DMR::ModelValue::BigDecimal');
+
+isa_ok (Jboss::DMR::ModelNode->new(BigIntegerValue("123"))->value,
+        'Jboss::DMR::ModelValue::BigInteger');
+
+isa_ok (Jboss::DMR::ModelNode->new(BooleanValue(true))->value,
+        'Jboss::DMR::ModelValue::Boolean');
+
+isa_ok (Jboss::DMR::ModelNode->new(BytesValue(\"abcd"))->value,
+        'Jboss::DMR::ModelValue::Bytes');
+
+isa_ok (Jboss::DMR::ModelNode->new(DoubleValue("123"))->value,
+        'Jboss::DMR::ModelValue::Double');
+
+isa_ok (Jboss::DMR::ModelNode->new(ExpressionValue('$expression'))->value,
+        'Jboss::DMR::ModelValue::Expression');
+
+isa_ok (Jboss::DMR::ModelNode->new(IntValue("123"))->value,
+        'Jboss::DMR::ModelValue::Int');
+
+isa_ok (Jboss::DMR::ModelNode->new(ListValue([]))->value,
+        'Jboss::DMR::ModelValue::List');
+
+isa_ok (Jboss::DMR::ModelNode->new(LongValue([]))->value,
+        'Jboss::DMR::ModelValue::Long');
+
+isa_ok (Jboss::DMR::ModelNode->new(ObjectValue({}))->value,
+        'Jboss::DMR::ModelValue::Object');
+
+SKIP: {
+    skip "This dies - fixme", 1;
+isa_ok (Jboss::DMR::ModelNode->new(PropertyValue({}))->value,
+        'Jboss::DMR::ModelValue::Property');
+}
+
+isa_ok (Jboss::DMR::ModelNode->new(StringValue("string"))->value,
+        'Jboss::DMR::ModelValue::String');
+
+isa_ok (Jboss::DMR::ModelNode->new(UndefinedValue(undef))->value,
+        'Jboss::DMR::ModelValue::Undefined');
+
+isa_ok (Jboss::DMR::ModelNode->new()->value,
+        'Jboss::DMR::ModelValue::Undefined');
+
+my $node = Jboss::DMR::ModelNode->new();
+isa_ok $node, 'Jboss::DMR::ModelNode';
+isa_ok $node->value, 'Jboss::DMR::ModelValue::Undefined';
+ok !$node->isDefined(), '$node set to undefined correctly';

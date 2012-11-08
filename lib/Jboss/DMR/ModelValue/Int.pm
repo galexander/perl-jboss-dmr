@@ -18,6 +18,26 @@ sub ValidInt {
     return $value >= MIN_INT_VAL && $value <= MAX_INT_VAL;
 }
 
+sub asLong {
+    sprintf "%l", $_[0]->getValue();
+}
+
+sub asInt {
+    sprintf "%d", $_[0]->getValue();
+}
+
+sub asBoolean {
+    return $_[0]->getValue() != 0;
+}
+
+sub asDouble {
+    return sprintf "%f", $_[0]->getValue();
+}
+
+sub asBytes {
+    die "Todo";
+}
+
 
 
 1;

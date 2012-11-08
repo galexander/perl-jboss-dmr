@@ -8,48 +8,29 @@ use Scalar::Util qw(looks_like_number blessed);
 use Storable qw(dclone);
 use Exporter qw(import);
 
-use Jboss::DMR::ModelType qw(:types);
+use Jboss::DMR::ModelType qw(:types :typenames);
 
-our %TypeMap;
-our %TypeMapNames;
 our @EXPORT_OK;
 our %EXPORT_TAGS;
 
-BEGIN {
+{
 
-    %TypeMap = (
-        BigDecimal  => BIG_DECIMAL,
-        BigInteger  => BIG_INTEGER,
-        Boolean     => BOOLEAN,
-        Bytes       => BYTES,
-        Double      => DOUBLE,
-        Expression  => EXPRESSION,
-        Int         => INT,
-        List        => LIST,
-        Long        => LONG,
-        Object      => OBJECT,
-        Property    => PROPERTY,
-        String      => STRING,
-        Undefined   => UNDEFINED,
-    );
-
-    %TypeMapNames = reverse %TypeMap;
-
-    for my $type (keys %TypeMap) {
+    for my $type (@TYPE_NAMES) {
 
         my $subClass               = "@{[__PACKAGE__]}\::${type}";
-        my $subClassContructor     = "${type}Value";
-        my $subStaticContructor    = "${type}";
+        my $subClassConstructor     = "${type}Value";
+        my $subStaticConstructor    = "${type}";
         my $subAccessor             = "as${type}";
 
-        push @EXPORT_OK,            $subClassContructor;
-        push @{$EXPORT_TAGS{all}},  $subClassContructor;
+        push @EXPORT_OK,              $subClassConstructor;
+        push @{$EXPORT_TAGS{all}},    $subClassConstructor;
+        push @{$EXPORT_TAGS{values}}, $subClassConstructor;
 
         eval "use $subClass;";
         die "$@" if $@;
 
         no strict 'refs';
-        *$subClassContructor = sub {
+        *$subClassConstructor = sub {
             $subClass->new(pop @_);
         };
 
@@ -58,12 +39,14 @@ BEGIN {
         };
     }
 
-    for my $method (qw(getChild removeChild addChild getKeys asType)) {
+
+    for my $method (qw(getChild removeChild addChild getKeys asType asPropertyList)) {
         no strict 'refs';
         *$method = sub {
             croak "Illegal accessor ($method) for @{[ ref $_[0] || $_[0] || __PACKAGE__ ]}";
         };
     }
+
 }
 
 sub new {
@@ -74,12 +57,9 @@ sub new {
 
     my $type;
     if ($className =~ /^@{[__PACKAGE__]}::(\S+)$/) {
-        $type = $1;
-        croak "Unknown $type for ModelValue"
-            unless exists $TypeMap{$type};
-
-        $type = $TypeMap{$type};
-
+        $type = Jboss::DMR::ModelType->ValueOf($1);
+        croak "Unknown type($type) for ModelValue"
+            unless defined $type;
     } else {
         croak "Unknown type $className";
     }
@@ -105,12 +85,11 @@ sub getType {
 }
 
 sub getTypeName {
-    $TypeMapNames{$_[0]->type};
+    Jboss::DMR::ModelType->ValueOf($_[0]->type);
 }
 
 sub clone {
-    my $self = shift;
-    return bless { %{ dclone $self } }, ref $self || $self;
+    return bless dclone $_[0], ref $_[0] || $_[0]
 }
 
 sub struct {
@@ -132,6 +111,10 @@ sub value {
     $self->{'_value'};
 }
 
+sub getValue {
+    $_[0]->{'_value'};
+}
+
 sub _NumericValueOf($) {
     my $value = pop @_;
 
@@ -151,13 +134,6 @@ sub _NumericValueOf($) {
         return BigIntegerValue(new Math::BigInt($value));
 
     } else {
-        #no bignum;
-        #my $str_value = $value + 0.0;
-        #if ($str_value =~ /inf/i || $fraction >= 14) {
-        #    return BigDecimalValue(new Math::BigFloat("$value"));
-        #} else {
-        #    return DoubleValue($value);
-        #}
         return DoubleValue($value)
             if (Jboss::DMR::ModelValue::Double->ValidDouble($value));
 
@@ -180,7 +156,8 @@ sub _ValueOf;
 sub _ValueOf($) {
 
     my $value = pop @_;
-    return UndefinedValue() unless defined $value;
+    return UndefinedValue()  unless defined $value;
+    return $value if blessed $value && $value->isa('Jboss::DMR::ModelValue');
 
     if (my $ret = looks_like_number "$value") {
         return _NumericValueOf $value;
@@ -193,7 +170,7 @@ sub _ValueOf($) {
         }
         
         return ListValue($value)     if ref $value eq 'ARRAY';
-        return PropertyValue($value) if ref $value eq 'HASH';
+        return ObjectValue($value)   if ref $value eq 'HASH';
         return BytesValue($value)    if ref $value eq 'SCALAR';
         return ValueOf(&$value)      if ref $value eq 'CODE';
         croak "Unknown value type @{[ ref $value ]}";

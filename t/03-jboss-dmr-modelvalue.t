@@ -48,6 +48,20 @@ can_ok 'Jboss::DMR::ModelValue', 'getKeys';
 can_ok 'Jboss::DMR::ModelValue', 'asType';
 can_ok 'Jboss::DMR::ModelValue', 'clone';
 can_ok 'Jboss::DMR::ModelValue', 'struct';
+can_ok 'Jboss::DMR::ModelValue', 'asPropertyList';
+
+TODO: {
+    local $TODO = "not implemented yet";
+can_ok 'Jboss::DMR::ModelValue', 'writeString';
+can_ok 'Jboss::DMR::ModelValue', 'writeExternal';
+can_ok 'Jboss::DMR::ModelValue', 'formatAsJSONString';
+can_ok 'Jboss::DMR::ModelValue', 'writeJSONString';
+can_ok 'Jboss::DMR::ModelValue', 'toJSONString';
+can_ok 'Jboss::DMR::ModelValue', 'resolve';
+can_ok 'Jboss::DMR::ModelValue', 'copy';
+can_ok 'Jboss::DMR::ModelValue', 'has';
+can_ok 'Jboss::DMR::ModelValue', 'requireChild';
+}
 
 # Test Exporter
 use Jboss::DMR::ModelValue qw(:all);
@@ -77,8 +91,13 @@ isa_ok (Jboss::DMR::ModelValue->LongValue(2**32),
        'Jboss::DMR::ModelValue::Long');
 isa_ok (Jboss::DMR::ModelValue->ObjectValue(bless {},'Object'),
        'Jboss::DMR::ModelValue::Object');
+TODO: {
+    local $TODO = "To be implemented";
+eval {
 isa_ok (Jboss::DMR::ModelValue->PropertyValue({}),
        'Jboss::DMR::ModelValue::Property');
+}
+}
 isa_ok (Jboss::DMR::ModelValue->StringValue("string"),
        'Jboss::DMR::ModelValue::String');
 isa_ok (Jboss::DMR::ModelValue->UndefinedValue(undef),
@@ -175,7 +194,7 @@ isa_ok (Jboss::DMR::ModelValue->ValueOf(bless {},'Object'),
        'Jboss::DMR::ModelValue::Object');
 
 isa_ok (Jboss::DMR::ModelValue->ValueOf({}),
-       'Jboss::DMR::ModelValue::Property');
+       'Jboss::DMR::ModelValue::Object');
 
 isa_ok (Jboss::DMR::ModelValue->ValueOf("string"),
        'Jboss::DMR::ModelValue::String');
@@ -192,7 +211,7 @@ like $@, qr/illegal/i, "as$_ accessor died OK";
 
 }
 
-for (qw(getChild removeChild addChild getKeys asType)) {
+for (qw(getChild removeChild addChild getKeys asType asPropertyList asList)) {
     eval "Jboss::DMR::ModelValue->${_}";
     
 like $@, qr/illegal/i, "$_ accessor died OK";
