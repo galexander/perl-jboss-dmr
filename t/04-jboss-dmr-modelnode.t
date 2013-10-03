@@ -37,7 +37,7 @@ can_ok 'Jboss::DMR::ModelNode', map("as${_}", keys %TypeMap);
 isa_ok (Jboss::DMR::ModelNode->new(BigDecimalValue("123"))->value,
         'Jboss::DMR::ModelValue::BigDecimal');
 
-isa_ok (Jboss::DMR::ModelNode->new(BigIntegerValue("123"))->value,
+isa_ok (Jboss::DMR::ModelNode->new(BigIntegerValue("456"))->value,
         'Jboss::DMR::ModelValue::BigInteger');
 
 isa_ok (Jboss::DMR::ModelNode->new(BooleanValue(true))->value,
@@ -64,11 +64,11 @@ isa_ok (Jboss::DMR::ModelNode->new(LongValue([]))->value,
 isa_ok (Jboss::DMR::ModelNode->new(ObjectValue({}))->value,
         'Jboss::DMR::ModelValue::Object');
 
-SKIP: {
-    skip "This dies - fixme", 1;
-isa_ok (Jboss::DMR::ModelNode->new(PropertyValue({}))->value,
+#SKIP: {
+#    skip "This dies - fixme", 1;
+isa_ok (Jboss::DMR::ModelNode->new(PropertyValue("foo", BooleanValue(true)))->value,
         'Jboss::DMR::ModelValue::Property');
-}
+#}
 
 isa_ok (Jboss::DMR::ModelNode->new(StringValue("string"))->value,
         'Jboss::DMR::ModelValue::String');

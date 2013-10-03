@@ -17,7 +17,7 @@ sub new {
 
     if (scalar @_ == 1) {
         croak "Invalid argument in constructor (@{[ ref $_[0]  || $_[0] ]})"
-            unless blessed $property and $property->isa('Jboss::DMR::Property');
+            unless blessed $_[0] and $_[0]->isa('Jboss::DMR::Property');
 
         $property = shift @_;
 

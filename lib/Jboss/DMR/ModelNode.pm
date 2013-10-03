@@ -22,7 +22,7 @@ our %EXPORT_TAGS = ( namespace => [qw(ModelNode)] );
 
 use Jboss::DMR::ModelType qw(:types :typenames);
 
-{
+BEGIN {
     no strict 'refs';
 
     my @exclude = ( qw(setExpression asList) );
@@ -32,7 +32,7 @@ use Jboss::DMR::ModelType qw(:types :typenames);
         my $typeSetter   = "set${type}";
         my $typeConstructor = "Jboss::DMR::ModelValue::${type}";
 
-        unless (grep $typeAccessor, @exclude) {
+        unless (grep /^$typeAccessor$/, @exclude) {
             *$typeAccessor = sub {
                 my $self = shift;
                 return $self->$typeAccessor(@_);
@@ -42,7 +42,7 @@ use Jboss::DMR::ModelType qw(:types :typenames);
         eval "use $typeConstructor;";
         die "$@" if $@;
 
-        unless (grep $typeSetter, @exclude) {
+        unless (grep /^$typeSetter$/, @exclude) {
             *$typeSetter = sub {
                 my $self = shift;
                 return $self->$typeSetter($typeConstructor->new(@_));
@@ -223,6 +223,7 @@ sub toJSON {
     $json->allow_blessed(1);
     $json->convert_blessed(1);
     $json->allow_bignum(1);
+    $json->pretty(1);
     return $json->encode($self);
 }
 1;

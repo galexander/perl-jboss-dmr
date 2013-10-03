@@ -31,7 +31,8 @@ our %EXPORT_TAGS;
 
         no strict 'refs';
         *$subClassConstructor = sub {
-            $subClass->new(pop @_);
+            #$subClass->new(pop @_);
+            $subClass->new(@_);
         };
 
         *$subAccessor = sub {

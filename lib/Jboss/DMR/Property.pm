@@ -21,8 +21,9 @@ sub new {
 
     if (defined $value) {
         if (blessed $value) {
-            croak 'Invalid arg - $value is not a Jboss::DMR::ModelNode'
-                unless $value->isa('Jboss::DMR::ModelNode');
+            croak 'Invalid arg - $value is not a Jboss::DMR::ModelNode or a JBoss::DMR:ModelValue'
+                if !($value->isa('Jboss::DMR::ModelNode') ||
+                     $value->isa('Jboss::DMR::ModelValue'));
         } else {
             $value = Jboss::DMR::ModelNode->new($value);
         }
